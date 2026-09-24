@@ -5,6 +5,7 @@ const WIDTH = 18;
 const HEIGHT = 12;
 const ROOM_WIDTH = WIDTH * TILE;
 const ROOM_HEIGHT = HEIGHT * TILE;
+const EXIT_COLUMNS = [8, 9];
 // Source coordinates in the 768 px preview of Spacestation_Inside_C.
 const FURNITURE = [
   { x: 48, y: 16, w: 144, h: 48, roomX: 2, roomY: 3 }, // bridge console
@@ -49,6 +50,10 @@ export default function WinluRoom() {
       const direction = delta[event.key];
       if (!direction) return;
       event.preventDefault();
+      if (direction[1] === 1 && position.y === HEIGHT - 2 && EXIT_COLUMNS.includes(position.x)) {
+        window.location.assign('/ai-town/');
+        return;
+      }
       setPosition(({ x, y }) => {
         const nextX = Math.max(1, Math.min(WIDTH - 2, x + direction[0]));
         const nextY = Math.max(3, Math.min(HEIGHT - 2, y + direction[1]));
@@ -62,7 +67,7 @@ export default function WinluRoom() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [furniture, decorations]);
+  }, [furniture, decorations, position]);
 
   useEffect(() => {
     const context = canvas.current?.getContext('2d');
@@ -100,6 +105,14 @@ export default function WinluRoom() {
       context.fillRect(0, (HEIGHT - 1) * TILE, ROOM_WIDTH, TILE);
       context.fillStyle = '#7196a5';
       context.fillRect(TILE, (HEIGHT - 1) * TILE, ROOM_WIDTH - 2 * TILE, 4);
+      // The open threshold occupies two tiles in the lower boundary.
+      const exitX = EXIT_COLUMNS[0] * TILE;
+      context.fillStyle = '#101923';
+      context.fillRect(exitX, (HEIGHT - 1) * TILE, EXIT_COLUMNS.length * TILE, TILE);
+      context.fillStyle = '#4b6671';
+      context.fillRect(exitX, (HEIGHT - 1) * TILE, EXIT_COLUMNS.length * TILE, 8);
+      context.fillStyle = '#56d9eb';
+      context.fillRect(exitX + 7, (HEIGHT - 1) * TILE + 8, EXIT_COLUMNS.length * TILE - 14, 3);
       if (furniture) {
         for (const item of FURNITURE) {
           context.drawImage(furniture,
@@ -157,7 +170,7 @@ export default function WinluRoom() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div><h1 className="text-2xl font-bold">Winlu room prototype</h1>
-            <p className="text-slate-300">Load Inside_A2 and Spaceship_walls locally, then walk with WASD or arrow keys.</p></div>
+            <p className="text-slate-300">Walk with WASD or arrow keys. Move down through the glowing bottom doorway to return to AI Town.</p></div>
           <a className="text-cyan-300 underline" href="/ai-town/">Back to AI Town</a>
         </div>
         <div className="mb-4 flex flex-wrap gap-4">
