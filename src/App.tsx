@@ -2,7 +2,6 @@ import Game from './components/Game.tsx';
 
 import { ToastContainer } from 'react-toastify';
 import a16zImg from '../assets/a16z.png';
-import convexImg from '../assets/convex.svg';
 import starImg from '../assets/star.svg';
 import helpImg from '../assets/help.svg';
 // import { UserButton } from '@clerk/clerk-react';
@@ -15,13 +14,11 @@ import Button from './components/buttons/Button.tsx';
 import InteractButton from './components/buttons/InteractButton.tsx';
 import FreezeButton from './components/FreezeButton.tsx';
 import { MAX_HUMAN_PLAYERS } from '../convex/constants.ts';
-import PoweredByConvex from './components/PoweredByConvex.tsx';
 
 export default function Home() {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between font-body game-background">
-      <PoweredByConvex />
 
       <ReactModal
         isOpen={helpModalOpen}
@@ -72,12 +69,12 @@ export default function Home() {
         </Unauthenticated>
       </div> */}
 
-      <div className="w-full lg:h-screen min-h-screen relative isolate overflow-hidden lg:p-8 shadow-2xl flex flex-col justify-start">
-        <h1 className="mx-auto text-4xl p-3 sm:text-8xl lg:text-9xl font-bold font-display leading-none tracking-wide game-title w-full text-left sm:text-center sm:w-auto">
+      <div className="w-full h-screen min-h-0 relative isolate overflow-hidden flex flex-col">
+        <h1 className="shrink-0 px-4 py-2 text-3xl sm:text-4xl font-bold font-display leading-none game-title">
           AI Town
         </h1>
 
-        <div className="max-w-xs md:max-w-xl lg:max-w-none mx-auto my-4 text-center text-base sm:text-xl md:text-2xl text-white leading-tight shadow-solid">
+        <div className="hidden">
           A virtual town where AI characters live, chat and socialize.
           {/* <Unauthenticated>
             <div className="my-1.5 sm:my-0" />
@@ -88,7 +85,7 @@ export default function Home() {
 
         <Game />
 
-        <footer className="justify-end bottom-0 left-0 w-full flex items-center mt-4 gap-3 p-6 flex-wrap pointer-events-none">
+        <footer className="shrink-0 w-full flex items-center gap-2 px-3 py-2 flex-wrap pointer-events-none">
           <div className="flex gap-4 flex-grow pointer-events-none">
             <FreezeButton />
             <MusicButton />
@@ -102,9 +99,6 @@ export default function Home() {
           </div>
           <a href="https://a16z.com">
             <img className="w-8 h-8 pointer-events-auto" src={a16zImg} alt="a16z" />
-          </a>
-          <a href="https://convex.dev/c/ai-town">
-            <img className="w-20 h-8 pointer-events-auto" src={convexImg} alt="Convex" />
           </a>
         </footer>
         <ToastContainer position="bottom-right" autoClose={2000} closeOnClick theme="dark" />
