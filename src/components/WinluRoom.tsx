@@ -32,6 +32,22 @@ function readImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
+const STATION_ASSETS = [
+  'Godot_Spacestation_Inside_A2.png',
+  'Spaceship_walls.png',
+  'Spacestation_Inside_C.png',
+  'Spacestation_Inside_D.png',
+] as const;
+
+function loadStationImage(filename: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Could not load ${filename} from public/assets/station.`));
+    image.src = `/ai-town/assets/station/${filename}`;
+  });
+}
+
 export default function WinluRoom() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [floor, setFloor] = useState<HTMLImageElement | null>(null);
@@ -40,6 +56,24 @@ export default function WinluRoom() {
   const [decorations, setDecorations] = useState<HTMLImageElement | null>(null);
   const [position, setPosition] = useState({ x: 9, y: 7 });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    Promise.all(STATION_ASSETS.map(loadStationImage)).then(
+      ([floorImage, wallImage, furnitureImage, decorationImage]) => {
+        if (!active) return;
+        setFloor(floorImage);
+        setWalls(wallImage);
+        setFurniture(furnitureImage);
+        setDecorations(decorationImage);
+        setError('');
+      },
+      (reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : 'Could not load station artwork.');
+      },
+    );
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -130,7 +164,7 @@ export default function WinluRoom() {
     } else {
       context.fillStyle = '#b7d6db';
       context.font = '20px sans-serif';
-      context.fillText('Choose Inside_A2 and Spaceship_walls PNGs to load the room', 75, 270);
+      context.fillText('Loading station artwork…', 75, 270);
     }
     const centerX = position.x * TILE + TILE / 2;
     const centerY = position.y * TILE + TILE / 2;
@@ -173,12 +207,15 @@ export default function WinluRoom() {
             <p className="text-slate-300">Walk with WASD or arrow keys. Move down through the glowing bottom doorway to return to AI Town.</p></div>
           <a className="text-cyan-300 underline" href="/ai-town/">Back to AI Town</a>
         </div>
-        <div className="mb-4 flex flex-wrap gap-4">
+        <details className="mb-4">
+          <summary className="cursor-pointer text-cyan-300">Choose different image files</summary>
+          <div className="mt-3 flex flex-wrap gap-4">
           <label>Godot_Spacestation_Inside_A2.png <input className="block" type="file" accept="image/png" onChange={(e) => void choose(e.target.files?.[0], 'floor')} /></label>
           <label>Spaceship_walls.png <input className="block" type="file" accept="image/png" onChange={(e) => void choose(e.target.files?.[0], 'walls')} /></label>
           <label>Spacestation_Inside_C.png <input className="block" type="file" accept="image/png" onChange={(e) => void choose(e.target.files?.[0], 'furniture')} /></label>
           <label>Spacestation_Inside_D.png <input className="block" type="file" accept="image/png" onChange={(e) => void choose(e.target.files?.[0], 'decorations')} /></label>
-        </div>
+          </div>
+        </details>
         {error && <p role="alert" className="mb-3 text-rose-300">{error}</p>}
         <canvas ref={canvas} width={ROOM_WIDTH} height={ROOM_HEIGHT} className="max-w-full border-4 border-slate-600 [image-rendering:pixelated]" />
         <p className="mt-3 text-slate-400">Prototype only: the player stops at the walls. AI Town agents still use their current map.</p>
